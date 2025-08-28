@@ -1,0 +1,15 @@
+[project]
+name = "randomseedgenerator"
+description = ""
+version = "1.0.0"
+license = {file = "LICENSE"}
+
+[project.urls]
+Repository = "https://github.com/Limbicnation/ComfyUI-RandomSeedGenerator"
+#  Used by Comfy Registry https://registry.comfy.org
+
+[tool.comfy]
+PublisherId = ""
+DisplayName = "ComfyUI-RandomSeedGenerator"
+Icon = "icon.png"
+includes = []
