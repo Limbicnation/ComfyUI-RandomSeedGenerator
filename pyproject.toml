@@ -1,15 +1,19 @@
 [project]
 name = "randomseedgenerator"
-description = ""
+description = "Advanced seed generator for ComfyUI with multiple modes, state persistence, and cross-library synchronization"
 version = "1.0.0"
 license = {file = "LICENSE"}
+dependencies = [
+    "torch>=1.9.0",
+    "numpy>=1.19.0"
+]
 
 [project.urls]
 Repository = "https://github.com/Limbicnation/ComfyUI-RandomSeedGenerator"
 #  Used by Comfy Registry https://registry.comfy.org
 
 [tool.comfy]
-PublisherId = ""
+PublisherId = "limbicnation"
 DisplayName = "ComfyUI-RandomSeedGenerator"
 Icon = "icon.png"
 includes = []
