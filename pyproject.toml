@@ -1,12 +1,9 @@
 [project]
 name = "randomseedgenerator"
-description = "Advanced seed generator for ComfyUI with multiple modes, state persistence, and cross-library synchronization"
-version = "1.2.0"
+description = "Minimal ComfyUI seed generator with fixed, random, increment, and decrement modes. Zero dependencies."
+version = "2.3.0"
 license = {file = "LICENSE"}
-dependencies = [
-    "torch>=1.9.0",
-    "numpy>=1.19.0"
-]
+dependencies = []
 
 [project.urls]
 Repository = "https://github.com/Limbicnation/ComfyUI-RandomSeedGenerator"
@@ -17,3 +14,7 @@ PublisherId = "limbicnation"
 DisplayName = "ComfyUI-RandomSeedGenerator"
 Icon = "https://raw.githubusercontent.com/Limbicnation/ComfyUI-RandomSeedGenerator/main/icon.png"
 includes = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--confcutdir=tests --import-mode=importlib"

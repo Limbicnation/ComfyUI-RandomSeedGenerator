@@ -4,185 +4,122 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![ComfyUI](https://img.shields.io/badge/ComfyUI-Custom%20Node-orange)](https://github.com/comfyanonymous/ComfyUI)
-[![Python](https://img.shields.io/badge/Python-3.8+-green.svg)](https://python.org)
+[![Python](https://img.shields.io/badge/Python-3.9+-green.svg)](https://python.org)
 
-**🎲 Advanced Seed Generator** - A professional-grade custom node for ComfyUI that provides comprehensive seed generation capabilities with multiple modes, state persistence, cross-library synchronization, and enterprise-level reliability features.
+**🎲 Advanced Seed Generator** — a small, focused custom node for ComfyUI that produces seed values in four modes: fixed, random, increment, and decrement. Pure Python standard library, no external dependencies.
 
 ## ✨ Features
 
-- **🎯 Multiple Generation Modes**: Fixed, Random, Increment, and Decrement modes for various workflows
-- **🔄 State Persistence**: Maintains seed state across executions for increment/decrement modes
-- **🔗 Cross-Library Sync**: Synchronizes seeds across Python, NumPy, and PyTorch for consistent results
-- **⚡ Performance Optimized**: Intelligent backend selection (Python random vs PyTorch) based on batch size
-- **🛡️ Thread-Safe Operations**: Concurrent access protection with threading.RLock()
-- **🔧 Configurable Overflow**: Wrap, clamp, or error handling for boundary conditions
-- **📊 Batch Generation**: Generate up to 100,000 seeds efficiently in batch mode
-- **🎮 CUDA Support**: Full GPU acceleration support with deterministic mode options
-- **🐛 Comprehensive Logging**: Configurable debug logging for troubleshooting
-- **✅ Input Validation**: Robust error handling and parameter validation
+- **🎯 Four generation modes**: `fixed`, `random`, `increment`, `decrement`
+- **🔁 Cross-execution state**: increment/decrement remember the last seed across workflow runs
+- **🌐 Full 64-bit range**: seeds span `0` to `2⁶⁴ − 1` (`18,446,744,073,709,551,615`)
+- **♾️ Safe wrap-around**: increment past MAX wraps to `0`; decrement past `0` wraps to MAX
+- **📦 Zero dependencies**: uses only `random`, `time`, and `logging` from the Python stdlib
+- **🧩 Registry-ready**: published to the [ComfyUI Registry](https://registry.comfy.org)
 
 ## 🚀 Installation
 
-### Method 1: Manual Installation
-1. Navigate to your ComfyUI `custom_nodes` directory
-2. Clone this repository:
-   ```bash
-   git clone https://github.com/Limbicnation/ComfyUI-RandomSeedGenerator.git
-   ```
-3. Restart ComfyUI
-4. The node will appear under `utils` category as "🎲 Advanced Seed Generator"
+### Method 1 — Manual
 
-### Method 2: ComfyUI Manager (Recommended)
-1. Install [ComfyUI Manager](https://github.com/ltdrdata/ComfyUI-Manager)
-2. Search for "Random Seed Generator" in the manager
-3. Install and restart ComfyUI
+```bash
+cd ComfyUI/custom_nodes
+git clone https://github.com/Limbicnation/ComfyUI-RandomSeedGenerator.git
+```
 
-### Method 3: ComfyUI Registry
+Restart ComfyUI. The node appears under **utils** as **🎲 Advanced Seed Generator**.
+
+### Method 2 — ComfyUI Manager (recommended)
+
+1. Install [ComfyUI Manager](https://github.com/ltdrdata/ComfyUI-Manager).
+2. Search for **Random Seed Generator**.
+3. Install and restart ComfyUI.
+
+### Method 3 — ComfyUI Registry
+
 ```bash
 comfy node install randomseedgenerator
 ```
 
-## 📖 Usage Guide
+## 📖 Usage
 
-### Node Parameters
+### Parameters
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| **mode** | Dropdown | "fixed" | Generation mode: `fixed`, `increment`, `decrement`, `random` |
-| **seed** | Integer | 0 | Base seed value (0 to 18,446,744,073,709,551,615) |
-| **sync_libraries** | Boolean | True | Synchronize seed across Python, NumPy, PyTorch |
-| **deterministic** | Boolean | False | Enable full deterministic mode (may impact performance) |
-| **overflow_behavior** | Dropdown | "wrap" | Overflow handling: `wrap`, `clamp`, `error` |
-| **use_torch_backend** | Dropdown | "auto" | Backend selection: `auto`, `random`, `torch` |
-| **batch_count** | Integer | 1 | Number of seeds to generate (1-100,000) |
+| **mode** | Dropdown | `fixed` | One of `fixed`, `random`, `increment`, `decrement` |
+| **seed** | Integer | `0` | Used directly in `fixed` mode; ignored in the others |
 
-### Generation Modes
+### Modes
 
-#### 🔒 Fixed Mode
-Returns the exact seed value you specify. Perfect for reproducible generations.
+#### 🔒 Fixed
+Returns the exact seed value provided. Use for reproducible generations.
+
 ```
-Input: seed=12345 → Output: 12345 (always)
+seed=12345 → 12345 (always)
 ```
 
-#### 🎲 Random Mode  
-Generates a new random seed on each execution (0 to 2^64-1).
-```
-Input: any seed → Output: 4831672946, 9573821047, ... (random)
-```
+#### 🎲 Random
+Returns a fresh random seed in `[0, 2⁶⁴−1]` on every execution.
 
-#### ⬆️ Increment Mode
-Increments from the last generated seed by 1. State persists across workflow executions.
 ```
-First run: 42 → Second run: 43 → Third run: 44 ...
+→ 4831672946…, 9573821047…, …
 ```
 
-#### ⬇️ Decrement Mode
-Decrements from the last generated seed by 1. State persists across workflow executions.
+#### ⬆️ Increment
+Returns `last_seed + 1`. State persists across workflow runs.
+
 ```
-First run: 42 → Second run: 41 → Third run: 40 ...
-```
-
-### Overflow Behavior Options
-
-- **🔄 Wrap (Default)**: Cycles around boundaries (MAX → MIN, MIN → MAX)
-- **🛑 Clamp**: Stops at boundaries (stays at MAX/MIN when limit reached)  
-- **❌ Error**: Raises exception when overflow would occur
-
-### Backend Selection
-
-- **🤖 Auto (Recommended)**: Optimal backend selection based on batch size
-  - Single seeds: Python random (fastest)
-  - Batches ≥100: PyTorch CPU
-  - Batches ≥1000: PyTorch GPU (if available)
-- **🐍 Random**: Force Python random module (good for small operations)
-- **🔥 Torch**: Force PyTorch backend (better for large batches)
-
-## 💡 Usage Examples
-
-### Basic Seed Generation
-1. Add "🎲 Advanced Seed Generator" to your workflow
-2. Set mode to "random" for exploration or "fixed" for reproducibility
-3. Connect the output to any node requiring a seed (KSampler, etc.)
-
-### Batch Exploration Workflow
-1. Set `mode` to "increment" 
-2. Set `batch_count` to 10
-3. Use with batch processors to generate variations systematically
-
-### Professional Reproducibility Setup
-1. Set `mode` to "fixed"
-2. Enable `sync_libraries` and `deterministic`
-3. Document your seed values for exact reproduction
-
-## 🔧 Advanced Configuration
-
-### Environment Variables
-```bash
-# Set logging level for debugging
-export COMFYUI_SEED_LOG_LEVEL=DEBUG  # Options: DEBUG, INFO, WARNING, ERROR
+run 1: 42 → run 2: 43 → run 3: 44 …
 ```
 
-### Performance Tuning
-- **Small batches (1-99)**: Use "random" backend for minimal overhead
-- **Medium batches (100-999)**: Use "auto" for optimal CPU performance  
-- **Large batches (1000+)**: Use "auto" with CUDA for GPU acceleration
+#### ⬇️ Decrement
+Returns `last_seed − 1`. State persists across workflow runs.
+
+```
+run 1: 42 → run 2: 41 → run 3: 40 …
+```
+
+### Wrap-around
+
+Increment and decrement wrap at the 64-bit boundary: `MAX → 0` and `0 → MAX`. No configuration; this is always the behavior.
+
+### State scope
+
+The `_last_seed` counter is **class-level** — shared across every instance of the node in the current ComfyUI process. ComfyUI does not surface per-node identity to the executor, so isolated counters per node aren't possible without upstream API changes. If you need independent counters, use `random` mode and seed downstream samplers directly.
 
 ## 📋 Requirements
 
-- **ComfyUI**: Latest version recommended
-- **Python**: 3.8 or higher
-- **Dependencies**: 
-  - `torch` (PyTorch)
-  - `numpy` 
-  - `threading` (built-in)
-  - `logging` (built-in)
+- **ComfyUI**: any current version
+- **Python**: 3.9+
+- **Dependencies**: none (Python stdlib only)
 
 ## 🔍 Troubleshooting
 
-### Common Issues
+**Node not appearing in the menu**
+- Restart ComfyUI completely.
+- Check the ComfyUI console for import errors.
 
-**Node not appearing in menu:**
-- Restart ComfyUI completely
-- Check console for import errors
-- Verify all dependencies are installed
-
-**Increment/Decrement not working:**
-- State persists at class level - normal behavior
-- Use `reset_state()` method in console if needed
-- Check overflow_behavior setting
-
-**Performance issues with large batches:**
-- Set backend to "torch" for batches >1000
-- Enable GPU if available for CUDA acceleration
-- Monitor memory usage with very large batches
-
-### Debug Logging
-Enable detailed logging to diagnose issues:
-```bash
-export COMFYUI_SEED_LOG_LEVEL=DEBUG
-# Restart ComfyUI and check console output
-```
+**Increment/decrement counter is "wrong"**
+- The counter is shared across every instance of this node in the workflow. See *State scope* above.
+- The simplest reset is to restart ComfyUI — `_last_seed` lives in process memory only.
+- If you need a known starting point without restarting, switch to `random` mode for one execution; the next `increment` will start from that random value plus one.
+- For scripts/tests, `AdvancedSeedGenerator.reset_state()` zeroes the counter directly.
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Submit a pull request
+Pull requests welcome. Please:
+
+1. Fork and create a feature branch.
+2. Add tests under `tests/` for new behavior.
+3. Run `python -m pytest tests/`.
+4. Open a PR.
 
 ## 📝 License
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- ComfyUI community for the amazing platform
-- Contributors and testers
-- Enhanced and maintained with Claude Code
+Apache License 2.0 — see [LICENSE](LICENSE).
 
 ---
 
-**⭐ If this node helps your workflow, please consider starring the repository!**
+**⭐ If this node helps your workflow, please consider starring the repository.**
 
-For issues, feature requests, or questions, please visit our [GitHub Issues](https://github.com/Limbicnation/ComfyUI-RandomSeedGenerator/issues) page.
+For issues or feature requests, see [GitHub Issues](https://github.com/Limbicnation/ComfyUI-RandomSeedGenerator/issues).
