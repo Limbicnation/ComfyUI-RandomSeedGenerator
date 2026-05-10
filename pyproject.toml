@@ -1,6 +1,6 @@
 [project]
 name = "randomseedgenerator"
-description = "Advanced seed generator for ComfyUI with multiple modes, state persistence, and cross-library synchronization"
+description = "Minimal ComfyUI seed generator with fixed, random, increment, and decrement modes. Zero dependencies."
 version = "2.3.0"
 license = {file = "LICENSE"}
 dependencies = []

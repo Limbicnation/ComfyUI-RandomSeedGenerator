@@ -76,7 +76,10 @@ class AdvancedSeedGenerator:
         else:
             raise ValueError(f"Unknown mode: {mode!r}")
 
-        self.__class__._last_seed = result
+        # Only dynamic modes update the shared counter; fixed must be side-effect-free
+        # so users can interleave fixed reads without disturbing increment/decrement state.
+        if mode in ("random", "increment", "decrement"):
+            self.__class__._last_seed = result
         logger.debug("Generated seed %d (mode=%s)", result, mode)
         return (result,)
 

@@ -100,8 +100,10 @@ The `_last_seed` counter is **class-level** — shared across every instance of 
 - Check the ComfyUI console for import errors.
 
 **Increment/decrement counter is "wrong"**
-- The counter is shared across all instances of this node in the workflow. See *State scope* above.
-- To reset to `0`, call `AdvancedSeedGenerator.reset_state()` from the ComfyUI Python console.
+- The counter is shared across every instance of this node in the workflow. See *State scope* above.
+- The simplest reset is to restart ComfyUI — `_last_seed` lives in process memory only.
+- If you need a known starting point without restarting, switch to `random` mode for one execution; the next `increment` will start from that random value plus one.
+- For scripts/tests, `AdvancedSeedGenerator.reset_state()` zeroes the counter directly.
 
 ## 🤝 Contributing
 

@@ -39,9 +39,28 @@ def test_fixed_returns_input_seed(gen):
     assert gen.generate_seed("fixed", 42) == (42,)
 
 
-def test_fixed_updates_last_seed(gen):
-    gen.generate_seed("fixed", 12345)
-    assert AdvancedSeedGenerator._last_seed == 12345
+def test_fixed_does_not_mutate_last_seed(gen):
+    """Regression: fixed mode must not touch the shared increment/decrement counter.
+
+    Before this guard, calling `fixed` clobbered `_last_seed`, which silently
+    altered other AdvancedSeedGenerator nodes running increment/decrement in the
+    same workflow.
+    """
+    AdvancedSeedGenerator._last_seed = 500
+    assert gen.generate_seed("fixed", 12345) == (12345,)
+    assert AdvancedSeedGenerator._last_seed == 500
+
+
+def test_random_updates_last_seed(gen):
+    AdvancedSeedGenerator._last_seed = 0
+    (result,) = gen.generate_seed("random", 0)
+    assert AdvancedSeedGenerator._last_seed == result
+
+
+def test_increment_updates_last_seed(gen):
+    AdvancedSeedGenerator._last_seed = 100
+    gen.generate_seed("increment", 0)
+    assert AdvancedSeedGenerator._last_seed == 101
 
 
 def test_random_within_bounds(gen):
@@ -98,7 +117,7 @@ def test_is_changed_fixed_returns_stable_key():
 
 
 def test_reset_state_clears_last_seed(gen):
-    gen.generate_seed("fixed", 7777)
+    AdvancedSeedGenerator._last_seed = 7777
     assert AdvancedSeedGenerator._last_seed == 7777
     AdvancedSeedGenerator.reset_state()
     assert AdvancedSeedGenerator._last_seed == 0
